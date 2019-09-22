@@ -1,6 +1,10 @@
 Package.describe({
   name: 'clinical:hl7-resource-explanation-of-benefit',
+<<<<<<< HEAD
   version: '1.4.22',
+=======
+  version: '1.4.23',
+>>>>>>> 87c99224b0aad080007fcbd545fc17196d1172a3
   summary: 'HL7 FHIR Resource - ExplanationOfBenefit',
   git: 'https://github.com/clinical-meteor/hl7-resource-explanation-of-benefit',
   documentation: 'README.md'
