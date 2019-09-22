@@ -1,8 +1,8 @@
 Package.describe({
-  name: 'clinical:hl7-resource-explanation-of-benefits',
+  name: 'clinical:hl7-resource-explanation-of-benefit',
   version: '1.4.22',
   summary: 'HL7 FHIR Resource - ExplanationOfBenefit',
-  git: 'https://github.com/clinical-meteor/hl7-resource-explanation-of-benefits',
+  git: 'https://github.com/clinical-meteor/hl7-resource-explanation-of-benefit',
   documentation: 'README.md'
 });
 
@@ -32,7 +32,6 @@ Package.onUse(function (api) {
   api.addFiles('lib/ExplanationOfBenefits.js', ['client', 'server']);
   
   api.addFiles('server/rest.js', 'server');
-  api.addFiles('server/initialize.js', 'server');
   api.addFiles('server/methods.js', ['client', 'server']);
 
   if(Package['clinical:fhir-vault-server']){

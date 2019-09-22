@@ -23,28 +23,37 @@ flattenExplanationOfBenefit = function(explanationOfBenefit){
     valueString: '',
     value: '',
     explanationOfBenefitValue: '',
-    subject: '',
-    subjectId: '',
+    patient: '',
+    patientId: '',
     status: '',
-    device: '',
+    insurance: '',
     createdBy: '',
     effectiveDateTime: '',
     issued: '',
-    unit: ''
+    type: '',
+    itemCount: 0,
+    informationCount: 0,
+    identifierCount: 0
   };
 
   result._id =  get(explanationOfBenefit, 'id') ? get(explanationOfBenefit, 'id') : get(explanationOfBenefit, '_id');
   result.category = get(explanationOfBenefit, 'category.text', '');
-  result.code = get(explanationOfBenefit, 'code.text', '');
-  result.valueString = get(explanationOfBenefit, 'valueString', '');
-  result.comparator = get(explanationOfBenefit, 'valueQuantity.comparator', '');
+
   result.explanationOfBenefitValue = get(explanationOfBenefit, 'valueQuantity.value', '');
-  result.unit = get(explanationOfBenefit, 'valueQuantity.unit', '');
-  result.subject = get(explanationOfBenefit, 'subject.display', '');
-  result.subjectId = get(explanationOfBenefit, 'subject.reference', '');
+
+  result.patient = get(explanationOfBenefit, 'patient.display', '');
+  result.patientId = get(explanationOfBenefit, 'patient.reference', '');
   result.device = get(explanationOfBenefit, 'device.display', '');
+
+  result.id = get(explanationOfBenefit, 'id', '');
+
+  result.id = get(explanationOfBenefit, 'id', '');
   result.status = get(explanationOfBenefit, 'status', '');
-  
+
+  result.type = get(explanationOfBenefit, 'type.coding[0].code', '');
+
+  result.insurance = get(explanationOfBenefit, 'insurance.coverage.reference', '');
+
   if(get(explanationOfBenefit, 'effectiveDateTime')){
     result.effectiveDateTime =  moment(get(explanationOfBenefit, 'effectiveDateTime')).format("YYYY-MM-DD hh a");
   }
@@ -56,14 +65,15 @@ flattenExplanationOfBenefit = function(explanationOfBenefit){
 
   result.meta = get(explanationOfBenefit, 'category.text', '');
 
-  if(result.valueString.length > 0){
-    result.value = result.valueString;
-  } else {
-    result.value = result.comparator + ' ' + result.explanationOfBenefitValue + ' ' + result.unit;
+  if(get(explanationOfBenefit, 'identifier')){
+    result.identifierCount = explanationOfBenefit.identifier.length;
   }
-
-
-
+  if(get(explanationOfBenefit, 'information')){
+    result.informationCount = explanationOfBenefit.information.length;
+  }
+  if(get(explanationOfBenefit, 'item')){
+    result.itemCount = explanationOfBenefit.item.length;
+  }
 
   return result;
 }
@@ -181,7 +191,7 @@ export class ExplanationOfBenefitsTable extends React.Component {
   renderSubjectHeader(){
     if (this.props.showSubjects) {
       return (
-        <th className='name'>subject</th>
+        <th className='name'>Subject</th>
       );
     }
   }
@@ -303,21 +313,26 @@ export class ExplanationOfBenefitsTable extends React.Component {
       if(this.props.multiline){
         tableRows.push(
           <tr className="explanationOfBenefitRow" key={i} style={this.data.style.text} onClick={ this.rowClick.bind(this, this.data.explanationOfBenefits[i]._id)} >
-            {/* <td className='category'>{this.data.explanationOfBenefits[i].category }</td> */}
             { this.renderToggle() }
             { this.renderActionIcons() }
-            <td className='code'>
+            {/* <td className='code'>
               <b>{this.data.explanationOfBenefits[i].code }</b> <br />
               {this.data.explanationOfBenefits[i].value }
-              </td>
-            {/* {this.renderComparator(this.data.explanationOfBenefits[i].comparator)}
-            {this.renderValueString(this.data.explanationOfBenefits[i].explanationOfBenefitValue)} */}
-            {this.renderValue(this.data.explanationOfBenefits[i].explanationOfBenefitValue)}
-            {/* <td className='unit'>{this.data.explanationOfBenefits[i].unit }</td> */}
-            {this.renderSubject(this.data.explanationOfBenefits[i].subject)}
-            <td className='status' style={ this.displayOnMobile()} >{this.data.explanationOfBenefits[i].status }</td>
-            {this.renderDevice(this.data.explanationOfBenefits[i].device)}
-            <td className='date' style={{minWidth: '140px'}}>{this.data.explanationOfBenefits[i].effectiveDateTime }</td>
+              </td> */}
+            {/* {this.renderValue(this.data.explanationOfBenefits[i].explanationOfBenefitValue)} */}
+            {this.renderSubject(this.data.explanationOfBenefits[i].patientId)}
+            {/* <td className='system' >{this.data.explanationOfBenefits[i].system }</td> */}
+
+            <td className='id' >{this.data.explanationOfBenefits[i].id }</td>
+            <td className='status' >{this.data.explanationOfBenefits[i].status }</td>
+            <td className='insurance' >{this.data.explanationOfBenefits[i].insurance }</td>
+
+            <td className='identifierCount' >{this.data.explanationOfBenefits[i].identifierCount }</td>
+            <td className='informationCount' >{this.data.explanationOfBenefits[i].informationCount }</td>
+            <td className='itemCount' >{this.data.explanationOfBenefits[i].itemCount }</td>
+
+            {/* {this.renderDevice(this.data.explanationOfBenefits[i].device)} */}
+            {/* <td className='date' style={{minWidth: '140px'}}>{this.data.explanationOfBenefits[i].effectiveDateTime }</td> */}
             {this.renderBarcode(this.data.explanationOfBenefits[i]._id)}
           </tr>
         );    
@@ -327,16 +342,20 @@ export class ExplanationOfBenefitsTable extends React.Component {
           <tr className="explanationOfBenefitRow" key={i} style={this.data.style.text} onClick={ this.rowClick.bind(this, this.data.explanationOfBenefits[i]._id)} >            
             { this.renderToggle() }
             { this.renderActionIcons() }
-            <td className='category'>{this.data.explanationOfBenefits[i].category }</td>
+            {/* <td className='category'>{this.data.explanationOfBenefits[i].category }</td>
             <td className='code'>{this.data.explanationOfBenefits[i].code }</td>
-            {/* {this.renderComparator(this.data.explanationOfBenefits[i].comparator)}
-            {this.renderValueString(this.data.explanationOfBenefits[i].explanationOfBenefitValue)} */}
-            {this.renderValue(this.data.explanationOfBenefits[i].explanationOfBenefitValue)}
-            {/* <td className='unit'>{this.data.explanationOfBenefits[i].unit }</td> */}
-            {this.renderSubject(this.data.explanationOfBenefits[i].subject)}
-            <td className='status' style={ this.displayOnMobile()} >{this.data.explanationOfBenefits[i].status }</td>
-            {this.renderDevice(this.data.explanationOfBenefits[i].device)}
-            <td className='date' style={{minWidth: '140px'}}>{this.data.explanationOfBenefits[i].effectiveDateTime }</td>
+            {this.renderValue(this.data.explanationOfBenefits[i].explanationOfBenefitValue)} */}
+            {this.renderSubject(this.data.explanationOfBenefits[i].patientId)}
+            {/* <td className='system' >{this.data.explanationOfBenefits[i].system }</td> */}
+            <td className='id' >{this.data.explanationOfBenefits[i].id }</td>
+            <td className='status' >{this.data.explanationOfBenefits[i].status }</td>
+            <td className='insurance' >{this.data.explanationOfBenefits[i].insurance }</td>
+
+            <td className='identifierCount' >{this.data.explanationOfBenefits[i].identifierCount }</td>
+            <td className='informationCount' >{this.data.explanationOfBenefits[i].informationCount }</td>
+            <td className='itemCount' >{this.data.explanationOfBenefits[i].itemCount }</td>
+
+            {/* <td className='date' style={{minWidth: '140px'}}>{this.data.explanationOfBenefits[i].effectiveDateTime }</td> */}
             {this.renderBarcode(this.data.explanationOfBenefits[i]._id)}
           </tr>
         );    
@@ -349,22 +368,23 @@ export class ExplanationOfBenefitsTable extends React.Component {
         <Table id="explanationOfBenefitsTable" hover >
           <thead>
             <tr>
-              {/* <th className='meta' style={ this.displayOnMobile('100px')}>Meta</th> */}
-              {/* <th className='category'>Category</th>
-              <th className='code'>Code</th> */}
-
               { this.renderToggleHeader() }
               { this.renderActionIconsHeader() }
               {this.renderCategoryHeader() }
               {this.renderCodeHeader() }
-              {/* {this.renderComparatorHeader() }
-              {this.renderValueStringHeader() } */}
+
               {this.renderValueHeader() }
-              {/* <th className='unit'>Unit</th> */}
               {this.renderSubjectHeader() }
-              <th className='status' style={ this.displayOnMobile()} >Status</th>
-              {this.renderDeviceHeader() }
-              <th className='date' style={{minWidth: '140px'}}>Date</th>
+              {/* <th className='system' >System</th> */}
+              <th className='id' >Identifier</th>
+              <th className='status' >Status</th>
+              <th className='insurance' >Insurance</th>
+
+              <th className='identifierCount' >ID Count</th>
+              <th className='informationCount' >Info Count</th>
+              <th className='itemCount' >Item Count</th>
+
+              {/* <th className='date' style={{minWidth: '140px'}}>Date</th> */}
               {this.renderBarcodeHeader() }
             </tr>
           </thead>
@@ -389,7 +409,8 @@ ExplanationOfBenefitsTable.propTypes = {
   hideToggle: PropTypes.bool,
   hideActionIcons: PropTypes.bool,
   enteredInError: PropTypes.bool,
-  multiline: PropTypes.bool
+  multiline: PropTypes.bool,
+  displayBarcodes: PropTypes.bool
 };
 
 ReactMixin(ExplanationOfBenefitsTable.prototype, ReactMeteorData);
